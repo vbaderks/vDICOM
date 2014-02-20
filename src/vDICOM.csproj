@@ -17,8 +17,10 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="file.ts" />
     <TypeScriptCompile Include="parser.ts" />
     <TypeScriptCompile Include="representation.ts" />
+    <TypeScriptCompile Include="serializer.ts" />
     <TypeScriptCompile Include="tag.ts" />
     <TypeScriptCompile Include="variant.ts" />
     <TypeScriptCompile Include="_references.ts" />

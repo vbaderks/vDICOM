@@ -1,10 +1,11 @@
 ﻿/// <reference path="../lib/jasmine.js"/>
 /// <reference path="../src/vdicom.js"/>
 
-describe("jsDICOM - Dicom.Variant", function () {
+describe("vDICOM - Dicom.Variant", function () {
     it("should be able to create empty variants", function () {
         var variant = new Dicom.Variant(Dicom.Representations.integerString);
         expect(variant.representation).toBe(Dicom.Representations.integerString);
+        expect(variant.count).toBe(0);
     });
 
     it("empty variants with the same VR should be equal", function () {

@@ -1,7 +1,7 @@
 /// <reference path="../lib/jasmine.js"/>
 /// <reference path="../src/vdicom.js"/>
 
-describe("jsDICOM - Dicom.Tag", function () {
+describe("vDICOM - Dicom.Tag", function () {
     it("should be able to create Command tags", function () {
         var tag = new Dicom.Tag(1);
         expect(tag.groupNumber).toBe(0);

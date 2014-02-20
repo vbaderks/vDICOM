@@ -66,36 +66,46 @@ function writeElement(stream, tag, variant) {
         writeUInt16(stream, 0);
         writeUInt32(stream, variant.length);
     } else {
-        writeUInt16(stream, element.size);
+        writeUInt16(stream, variant.length);
     }
 }
 
-describe("jsDICOM - Dicom.Parser", function () {
+describe("vDICOM - Dicom.Parser", function () {
     it("should be able to read elements in Explicit Little Endian", function () {
-        var elements = new Array();
+        var elementsExpected = new Array();
         var tagExpected = new Dicom.Tag(0x00020010);
         var variantExpected = new Dicom.Variant(Dicom.Representations.integerString, null);
-        elements[Number(tagExpected)] = variantExpected;
+        elementsExpected[Number(tagExpected)] = variantExpected;
+        elementsExpected[Number(new Dicom.Tag(0x00020011))] = new Dicom.Variant(Dicom.Representations.applicationEntity, null);
+        elementsExpected[Number(new Dicom.Tag(0x00020012))] = new Dicom.Variant(Dicom.Representations.ageString, null);
 
         var stream = new MemoryStream();
-        elements.forEach(function(variantValue, tagValue) {
+        elementsExpected.forEach(function(variantValue, tagValue) {
             writeElement(stream, new Dicom.Tag(tagValue), variantValue);
         });
 
         var tag = null;
         var variant = null;
+        var elementsActual = new Array();
         var parser = new Dicom.Parser();
         parser.ontag = function(t) {
             tag = t;
         };
         parser.onelement = function(t, v) {
             variant = v;
+            elementsActual[Number(t)] = v;
         };
 
         var b = stream.getBuffer();
         parser.parse(b);
 
-        expect(tag.isEqual(tagExpected)).toBeTruthy();
-        expect(variant.isEqual(variantExpected)).toBeTruthy();
+        //debugger;
+        elementsExpected.forEach(function(variantValue, tagValue) {
+            var variantActual = elementsActual[Number(tagValue)];
+            expect(variantActual.isEqual(variantValue)).toBeTruthy();
+        });
+
+        //expect(tag.isEqual(tagExpected)).toBeTruthy();
+        //expect(variant.isEqual(variantExpected)).toBeTruthy();
     });
 });
