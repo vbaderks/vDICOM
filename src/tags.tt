@@ -1,0 +1,241 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ output extension=".ts" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Xml.XPath" #>
+<#@ import namespace="System.CodeDom.Compiler" #>
+
+/**
+ * Copyright (C) 2014 Victor Derks
+ * @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
+ * Note: This file is auto generated: Changes to this file may cause incorrect behavior and
+ *       will be lost if the code is regenerated.
+ */
+module Dicom {
+    export class Tags {
+        /**
+         * (0010,0010), Patient's Name, VR = PN, VM = 1.
+         */
+        public static patientName: number = 0x00100010;
+    }
+
+<#
+    ConvertDocBookToTypeScript();
+#>
+
+}
+<#+
+    void ConvertDocBookToTypeScript()
+    {
+        Regex RegexGenericFormat = new Regex(
+            @"^\(\s*([\dA-F]{4})\s*,\s*([\dA-F]{4})\s*\)$",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+        var errors = new CompilerErrorCollection();
+
+        string templateDirectory = Path.GetDirectoryName(Host.TemplateFile);
+        string input = templateDirectory + "\\part06.xml";
+        var document = new XPathDocument(input);
+        XPathNavigator navigator = document.CreateNavigator();
+        var manager = new XmlNamespaceManager(navigator.NameTable);
+        manager.AddNamespace("db", @"http://docbook.org/ns/docbook");
+
+        // TODO: update XPath navigations to use xml:id.
+        bool first = true;
+        foreach (XPathNavigator node in navigator.Select("//db:chapter[@label='6']//db:table//db:tbody//db:tr", manager)) // "//chapter[@label='6']/table/tbody/tr"
+        {
+            var cells = new List<string>();
+            foreach (XPathNavigator cell in node.Select("db:td//db:para//db:emphasis", manager))
+            {
+                cells.Add(cell.Value);
+            }
+            if (cells.Count == 0)
+            {
+                foreach (XPathNavigator cell in node.Select("db:td//db:para", manager))
+                {
+                    cells.Add(cell.Value);
+                }
+            }
+            if (cells.Count != 6)
+            {
+                string cellTag;
+                if (cells.Count > 1)
+                {
+                    cellTag = cells[0];
+                }
+                else
+                {
+                    cellTag = "unknown";
+                    continue; // TODO: remove when updated XML is available.
+                }
+                if (!IsReservedWithNoName(cellTag))
+                {
+                    errors.Add(new CompilerError(Host.TemplateFile, 0, 0, "1", "Detected invalid Row: missing cells for tag: " + cellTag));
+                }
+                continue;
+            }
+
+            // Parse the 'key' of the element.
+            Match match = RegexGenericFormat.Match(cells[0]);
+            if (!match.Success)
+            {
+                if (!IsRangetag(cells[0]))
+                {
+                    errors.Add(new CompilerError(Host.TemplateFile, 0, 0, "1", "Detected invalid Row: cannot parse tag: " + cells[0]));
+                }
+                continue;
+            }
+
+            uint tag = (uint.Parse(match.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture) << 16) |
+                        uint.Parse(match.Groups[2].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+
+            string name = cells[1];
+            string keyword = cells[2];
+            string valueRepresentation = cells[3];
+            string valueMultiplicity = cells[4];
+            bool retired = !string.IsNullOrEmpty(cells[5]);
+
+            // Skip all retired tags, unless explicit marked.
+            if (retired)
+              continue;
+
+            if (!first)
+            {
+                //WriteLine();
+            }
+            if (string.IsNullOrEmpty(keyword))
+            {
+                //keyword = "hello"; //CreateApiName(fullName);
+            }
+
+            name = name.Replace("&", "&amp;"); // make name xmlcomment safe.
+            string retiredString = string.Empty;
+            if (retired)
+            {
+                retiredString = ", Retired";
+            }
+
+#>
+            /**
+             * <#= FormatTag(tag) #>, <#= name #>, VR = <#= valueRepresentation #>, VM = <#= valueMultiplicity #><#= retiredString #>.
+            **/
+<#+
+        }
+       Host.LogErrors(errors);
+    }
+
+    private static string FormatTag(uint tag)
+    {
+        var groupNumber = (ushort)(tag >> 16);
+        var elementNumber = (ushort)(tag & 0xFFFF);
+
+        return "(" + groupNumber.ToString("X4", CultureInfo.InvariantCulture) +
+               "," + elementNumber.ToString("X4", CultureInfo.InvariantCulture) + ")";
+    }
+
+    private static bool IsRangetag(string tag)
+    {
+        switch (tag)
+        {
+            case "(0020,31xx)":
+            case "(0028,04x0)":
+            case "(0028,04x1)":
+            case "(0028,04x2)":
+            case "(0028,04x3)":
+            case "(0028,08x0)":
+            case "(0028,08x2)":
+            case "(0028,08x3)":
+            case "(0028,08x4)":
+            case "(0028,08x8)":
+            case "(1000,xxx0)":
+            case "(1000,xxx1)":
+            case "(1000,xxx2)":
+            case "(1000,xxx3)":
+            case "(1000,xxx4)":
+            case "(1000,xxx5)":
+            case "(1010,xxxx)":
+            case "(50xx,0005)":
+            case "(50xx,0010)":
+            case "(50xx,0020)":
+            case "(50xx,0022)":
+            case "(50xx,0030)":
+            case "(50xx,0040)":
+            case "(50xx,0103)":
+            case "(50xx,0104)":
+            case "(50xx,0105)":
+            case "(50xx,0106)":
+            case "(50xx,0110)":
+            case "(50xx,0112)":
+            case "(50xx,0114)":
+            case "(50xx,1001)":
+            case "(50xx,2000)":
+            case "(50xx,2002)":
+            case "(50xx,2004)":
+            case "(50xx,2006)":
+            case "(50xx,2008)":
+            case "(50xx,200A)":
+            case "(50xx,200C)":
+            case "(50xx,200E)":
+            case "(50xx,2500)":
+            case "(50xx,2600)":
+            case "(50xx,2610)":
+            case "(50xx,3000)":
+            case "(60xx,0010)":
+            case "(60xx,0011)":
+            case "(60xx,0012)":
+            case "(60xx,0015)":
+            case "(60xx,0022)":
+            case "(60xx,0040)":
+            case "(60xx,0045)":
+            case "(60xx,0050)":
+            case "(60xx,0051)":
+            case "(60xx,0052)":
+            case "(60xx,0060)":
+            case "(60xx,0061)":
+            case "(60xx,0062)":
+            case "(60xx,0063)":
+            case "(60xx,0066)":
+            case "(60xx,0068)":
+            case "(60xx,0069)":
+            case "(60xx,0100)":
+            case "(60xx,0102)":
+            case "(60xx,0110)":
+            case "(60xx,0200)":
+            case "(60xx,0800)":
+            case "(60xx,0802)":
+            case "(60xx,0803)":
+            case "(60xx,0804)":
+            case "(60xx,1001)":
+            case "(60xx,1301)":
+            case "(60xx,1302)":
+            case "(60xx,1303)":
+            case "(60xx,1500)":
+            case "(60xx,3000)":
+            case "(60xx,4000)":
+            case "(7Fxx,0010)":
+            case "(7Fxx,0011)":
+            case "(7Fxx,0020)":
+            case "(7Fxx,0030)":
+            case "(7Fxx,0040)":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static bool IsReservedWithNoName(string tag)
+    {
+        switch (tag)
+        {
+            case "(0018,9445)":
+            case "(0028,0020)":
+                return true;
+            default:
+                return false;
+        }
+    }
+#>

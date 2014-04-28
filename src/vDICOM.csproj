@@ -9,8 +9,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>0.9</TypeScriptToolsVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -22,8 +21,27 @@
     <TypeScriptCompile Include="representation.ts" />
     <TypeScriptCompile Include="serializer.ts" />
     <TypeScriptCompile Include="tag.ts" />
+    <TypeScriptCompile Include="tags.ts">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>tags.tt</DependentUpon>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="tags__.ts" />
     <TypeScriptCompile Include="variant.ts" />
     <TypeScriptCompile Include="_references.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="part06.xml" />
+    <Content Include="tags.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>tags.ts</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
