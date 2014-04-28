@@ -59,6 +59,24 @@ module Dicom {
         public static floatingPointSingle = new Representation("FL", "Floating Point Single", RepresentationAtrributes.ENDIAN_SENSITIVE);
         public static floatingPointDouble = new Representation("FD", "Floating Point Double", RepresentationAtrributes.ENDIAN_SENSITIVE);
         public static integerString = new Representation("IS", "Integer String", RepresentationAtrributes.NONE);
+        public static longString = new Representation("LO", "Long String", RepresentationAtrributes.NONE);
+        public static longText = new Representation("LT", "Long Text", RepresentationAtrributes.NONE);
+        public static otherByteString = new Representation("OB", "Other Byte String", RepresentationAtrributes.LENGTH32_BIT);
+        public static otherFloatString = new Representation("OF", "Other Float String", RepresentationAtrributes.LENGTH32_BIT);
+        public static otherWordString = new Representation("OW", "Other Word String", RepresentationAtrributes.LENGTH32_BIT);
+        public static personName = new Representation("PN", "Person Name", RepresentationAtrributes.NONE);
+        public static shortString = new Representation("SH", "Short String", RepresentationAtrributes.NONE);
+        public static signedLong = new Representation("SL", "Signed Long", RepresentationAtrributes.NONE);
+        public static sequenceOfItems = new Representation("SQ", "Sequence of Items", RepresentationAtrributes.LENGTH32_BIT);
+        public static signedShort = new Representation("SS", "Signed Short", RepresentationAtrributes.NONE);
+        public static shortText = new Representation("ST", "Short Text", RepresentationAtrributes.NONE);
+        public static time = new Representation("TM", "Time", RepresentationAtrributes.NONE);
+        public static uniqueIdentifier = new Representation("UI", "Unique Identifier", RepresentationAtrributes.NONE);
+        public static unsignedLong = new Representation("UL", "Unsigned Long", RepresentationAtrributes.NONE);
+        public static unknown = new Representation("UN", "Unknown", RepresentationAtrributes.LENGTH32_BIT);
+        public static unsignedShort = new Representation("US", "Unsigned Short", RepresentationAtrributes.NONE);
+        public static unlimitedText = new Representation("UT", "Unlimited Text", RepresentationAtrributes.LENGTH32_BIT);
+
         public static none = new Representation("", "None", RepresentationAtrributes.NONE);
 
         private static createMap() {
@@ -73,6 +91,24 @@ module Dicom {
             map[Representations.floatingPointSingle.vr] = Representations.floatingPointSingle;
             map[Representations.floatingPointDouble.vr] = Representations.floatingPointDouble;
             map[Representations.integerString.vr] = Representations.integerString;
+            map[Representations.longString.vr] = Representations.longString;
+            map[Representations.longText.vr] = Representations.longText;
+            map[Representations.otherByteString.vr] = Representations.otherByteString;
+            map[Representations.otherFloatString.vr] = Representations.otherFloatString;
+            map[Representations.otherWordString.vr] = Representations.otherWordString;
+            map[Representations.personName.vr] = Representations.personName;
+            map[Representations.shortString.vr] = Representations.shortString;
+            map[Representations.signedLong.vr] = Representations.signedLong;
+            map[Representations.sequenceOfItems.vr] = Representations.sequenceOfItems;
+            map[Representations.signedShort.vr] = Representations.signedShort;
+            map[Representations.shortText.vr] = Representations.shortText;
+            map[Representations.time.vr] = Representations.time;
+            map[Representations.uniqueIdentifier.vr] = Representations.uniqueIdentifier;
+            map[Representations.unsignedLong.vr] = Representations.unsignedLong;
+            map[Representations.unknown.vr] = Representations.unknown;
+            map[Representations.unsignedShort.vr] = Representations.unsignedShort;
+            map[Representations.unlimitedText.vr] = Representations.unlimitedText;
+
             return map;
         }
 
