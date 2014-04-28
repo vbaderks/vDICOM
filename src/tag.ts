@@ -39,6 +39,11 @@ module Dicom {
             return false; // TODO: implement and test
         }
 
+        public toString(): string {
+            return "(" + Tag.decimalToHex(this.groupNumber, 4) + "," +
+                         Tag.decimalToHex(this.elementNumber, 4) + ")";
+        }
+
         public valueOf(): number {
             return this.value;
         }
@@ -53,5 +58,19 @@ module Dicom {
         static create(groupNumber: number, elementNumber: number): Tag {
             return new Tag(groupNumber << 16 | elementNumber);
         }
+
+        private static decimalToHex(d: number, padding) {
+            var hex = Number(d).toString(16);
+            padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+
+            while (hex.length < padding) {
+                hex = "0" + hex;
+            }
+            return hex;
+        }
     }
+}
+
+if (typeof exports != "undefined") {
+    exports.Tag = Dicom.Tag;
 }

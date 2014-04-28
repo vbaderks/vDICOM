@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 Victor Derks
+ * @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
+ */
+
 /// <reference path="../lib/jasmine.js"/>
 /// <reference path="../src/vdicom.js"/>
 
@@ -31,11 +36,14 @@ describe("vDICOM - Dicom.Tag", function () {
         expect(Number(tag)).toBe(0x00020010);
     });
 
+    it("should look a standard DICOM tag (xxxx,yyyy) when used as a string", function () {
+        var tag = new Dicom.Tag(0x00020010);
+        expect(String(tag)).toBe("(0002,0010)");
+    });
+
     it("should have an equal operation", function () {
         var tag0 = new Dicom.Tag(0x00020010);
         var tag1 = new Dicom.Tag(0x00020010);
-
         expect(tag0.isEqual(tag1)).toBeTruthy();
     });
-
 });
