@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="age-string.spec.js" />
+    <Compile Include="other-byte-string.spec.js" />
     <Compile Include="representations.spec.js" />
     <Compile Include="variant.spec.js" />
     <Compile Include="parser.spec.js" />
