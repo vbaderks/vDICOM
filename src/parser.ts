@@ -7,6 +7,18 @@
 
 module Dicom {
 
+    export class TransferSyntaxUids {
+        public static implicitVRLittleEndian = "1.2.840.10008.1.2";
+        public static explicitVRLittleEndian = "1.2.840.10008.1.2.1";
+        public static explicitVRBigEndian = "1.2.840.10008.1.2.2";
+    }
+
+    enum FileSection {
+        PREAMBLE,
+        FILE_METAINFO,
+        DATA_SET
+    }
+
     enum ElementReadState {
         TAG,
         REPRESENTATION,
@@ -15,8 +27,8 @@ module Dicom {
     }
 
     export class Parser {
-        public tag: Tag;
-        public representation: Representation;
+        public tag: Dicom.Tag;
+        public representation: Dicom.Representation;
         public length: number;
         public valueData;
         public ontag;
@@ -26,12 +38,52 @@ module Dicom {
         private position: number;
         private littleEndian: boolean = true;
         private explicitVREncoding: boolean = true;
+        private fileSection: FileSection = FileSection.PREAMBLE;
+        private ts;
 
-        public parse(buffer: ArrayBuffer) {
+        constructor(private part10File: boolean, uid?: string) {
+            if (!part10File) {
+                this.fileSection = FileSection.DATA_SET;
+            }
+            if (uid) {
+
+            } else {
+                this.transferSyntax = TransferSyntaxUids.explicitVRLittleEndian;
+            }
+        }
+
+        public set transferSyntax(value: string) {
+            this.ts = value;
+            this.littleEndian = value != TransferSyntaxUids.explicitVRBigEndian;
+            this.explicitVREncoding = value != TransferSyntaxUids.implicitVRLittleEndian;
+        }
+
+        /**
+         * Tries to parse as many bytes as it can.
+         * @returns false if more data is needed before it can parse. True means info has been parsed.
+        */
+        public parse(buffer: ArrayBuffer): boolean {
             this.buffer = buffer;
             this.position = 0;
-            while (this.readElement()) {}
+
+            if (this.fileSection === FileSection.PREAMBLE) {
+                if (!this.isAvailable(128 + 4)) {
+                    return false;
+                }
+
+                this.position += 128;
+                this.checkPrefix();
+                this.position += 4;
+                this.fileSection = FileSection.FILE_METAINFO;
+            }
+
+            while (this.readElement()) {
+            }
+
+            return true; // 
         }
+
+
 
         /**
          * Reads a DICOM element from the attached stream.
@@ -39,14 +91,21 @@ module Dicom {
         */
         public readElement() {
             switch (this.readState) {
-                case ElementReadState.TAG:
-                    return this.readTag() && this.readRepresentation() && this.readLength() && this.readValue();
-                case ElementReadState.REPRESENTATION:
-                    return this.readRepresentation();
-                case ElementReadState.LENGTH:
-                    return this.readRepresentation();
-                case ElementReadState.VALUEDATA:
-                    return this.readRepresentation();
+            case ElementReadState.TAG:
+                return this.readTag() && this.readRepresentation() && this.readLength() && this.readValue();
+            case ElementReadState.REPRESENTATION:
+                return this.readRepresentation() && this.readLength() && this.readValue();
+            case ElementReadState.LENGTH:
+                return this.readLength() && this.readValue();
+            case ElementReadState.VALUEDATA:
+                return this.readRepresentation();
+            }
+        }
+
+        private checkPrefix() {
+            var view = new Uint8Array(this.buffer, this.position, 4);
+            if (!(view[0] == 0x44 && view[1] == 0x49 && view[2] == 0x43 && view[3] == 0x4d)) {
+                throw new Error("Invalid data: missing prefix DICM at offset 128");
             }
         }
 
@@ -71,7 +130,7 @@ module Dicom {
 
         private readRepresentation() {
             if (this.tag.isItemElement) {
-                this.representation = Representations.none;
+                this.representation = Dicom.Representations.none;
             } else {
                 if (this.explicitVREncoding) {
                     if (!this.isAvailable(2)) {
@@ -81,7 +140,7 @@ module Dicom {
                     var view = new Uint8Array(this.buffer, this.position, 2);
                     var vr = String.fromCharCode(view[0], view[1]);
                     this.position += 2;
-                    this.representation = Representations.lookup(vr);
+                    this.representation = Dicom.Representations.lookup(vr);
                 } else {
                     //Representation = ResolveImplicitRepresentation();
                 }
@@ -136,12 +195,12 @@ module Dicom {
 
             var view = new Uint8Array(this.buffer, this.position, this.length);
             var result = new Uint8Array(this.length);
-
             for (var i = 0; i < view.length; i++) {
                 result[i] = view[i];
             }
 
             this.valueData = result.buffer;
+            this.position += this.length;
         }
 
         private retrieveUInt16() {
@@ -168,7 +227,7 @@ module Dicom {
             return byteCount <= (this.buffer.byteLength - this.position);
         }
 
-        private explicitRepresentationEncoding(tag:Tag) {
+        private explicitRepresentationEncoding(tag: Dicom.Tag) {
             return this.explicitVREncoding && !tag.isItemElement;
         }
 
@@ -185,8 +244,12 @@ module Dicom {
 
         private raiseOnElement() {
             if (this.onelement && typeof (this.onelement) === "function") {
-                this.onelement(this.tag, new Variant(this.representation));
+                this.onelement(this.tag, new Dicom.Variant(this.representation));
             }
         }
     }
 }
+
+if (typeof exports != "undefined") {
+    exports.Parser = Dicom.Parser;
+};
