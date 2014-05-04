@@ -62,16 +62,7 @@ module Dicom {
             }
             if (cells.Count != 6)
             {
-                string cellTag;
-                if (cells.Count > 1)
-                {
-                    cellTag = cells[0];
-                }
-                else
-                {
-                    cellTag = "unknown";
-                    continue; // TODO: remove when updated XML is available.
-                }
+                string cellTag = cells.Count > 1 ? cells[0] : "unknown";
                 if (!IsReservedWithNoName(cellTag))
                 {
                     errors.Add(new CompilerError(Host.TemplateFile, 0, 0, "1", "Detected invalid Row: missing cells for tag: " + cellTag));
@@ -210,6 +201,14 @@ module Dicom {
             case "(60xx,0803)":
             case "(60xx,0804)":
             case "(60xx,1001)":
+            case "(60xx,1100)":
+            case "(60xx,1101)":
+            case "(60xx,1102)":
+            case "(60xx,1103)":
+            case "(60xx,1200)":
+            case "(60xx,1201)":
+            case "(60xx,1202)":
+            case "(60xx,1203)":
             case "(60xx,1301)":
             case "(60xx,1302)":
             case "(60xx,1303)":
